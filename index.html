@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Designer Character Sheet</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --bg:#090c11;
+  --panel:#10151d;
+  --panel-2:#0d1218;
+  --line:rgba(220,232,255,0.15);
+  --line-strong:rgba(220,232,255,0.32);
+  --text:#edf3ff;
+  --muted:#9eabc2;
+  --glow:rgba(180,210,255,0.18);
+  --slot:#131922;
+  --slot-top:#1a2230;
+  --accent:#dce8ff;
+}
+
+body{
+  font-family:'Share Tech Mono', monospace;
+  background:
+    radial-gradient(circle at top, rgba(120,150,210,0.14), transparent 30%),
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+    var(--bg);
+  background-size:auto, 28px 28px, 28px 28px, auto;
+  color:var(--text);
+  min-height:100vh;
+  padding:24px;
+  overflow-x:hidden;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.025),
+    rgba(255,255,255,0.025) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity:.45;
+}
+
+#boot{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  color:var(--accent);
+  text-align:center;
+  animation:bootFade 3.2s forwards;
+}
+
+#boot p{
+  letter-spacing:1px;
+  font-size:18px;
+  opacity:0;
+  animation:lineIn .5s forwards;
+}
+
+#boot p:nth-child(1){ animation-delay:.2s; }
+#boot p:nth-child(2){ animation-delay:.7s; }
+#boot p:nth-child(3){ animation-delay:1.2s; }
+#boot p:nth-child(4){ animation-delay:1.7s; }
+
+@keyframes lineIn{
+  from{opacity:0; transform:translateY(6px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes bootFade{
+  0%,85%{opacity:1; visibility:visible;}
+  100%{opacity:0; visibility:hidden;}
+}
+
+.container{
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+  z-index:1;
+}
+
+.title-panel,
+.panel{
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+  border:1px solid var(--line);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.03),
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 12px 30px rgba(0,0,0,0.28),
+    0 0 20px var(--glow);
+  position:relative;
+  overflow:hidden;
+}
+
+.title-panel::before,
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent 38%);
+}
+
+.title-panel{
+  padding:24px;
+  margin-bottom:20px;
+}
+
+.title-panel h1{
+  font-size:clamp(28px, 4vw, 42px);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:15px;
+  letter-spacing:1px;
+}
+
+.audio-controls{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:20px;
+}
+
+.audio-button{
+  font-family:'Share Tech Mono', monospace;
+  color:var(--text);
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--line-strong);
+  padding:12px 16px;
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.audio-button:hover{
+  transform:translateY(-2px);
+  background:rgba(220,232,255,0.08);
+  box-shadow:0 0 14px rgba(220,232,255,0.15);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12, 1fr);
+  gap:20px;
+}
+
+.panel{
+  grid-column:span 12;
+  padding:20px;
+}
+
+.profile-panel,
+.traits-panel{
+  grid-column:span 6;
+}
+
+.panel h2{
+  font-size:18px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+  color:var(--accent);
+}
+
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+
+.info-row:last-child{
+  border-bottom:none;
+}
+
+.label{
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  min-width:110px;
+}
+
+.value{
+  text-align:right;
+  color:var(--text);
+}
+
+.xp-block{
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.xp-label{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+  color:var(--text);
+  font-size:14px;
+}
+
+.bar{
+  width:100%;
+  height:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.04);
+  position:relative;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  background:linear-gradient(90deg, #9eb6e3, #eef4ff);
+  box-shadow:0 0 12px rgba(220,232,255,0.35);
+}
+
+.trait{
+  margin-bottom:16px;
+}
+
+.trait:last-child{
+  margin-bottom:0;
+}
+
+.trait-top{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.panel p{
+  color:#d9e2f2;
+  line-height:1.7;
+  font-size:16px;
+}
+
+.abilities-list{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:12px;
+}
+
+.abilities-list li{
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:12px;
+}
+
+/* INVENTORY */
+.inventory-wrap{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:18px;
+  align-items:start;
+}
+
+.inventory-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:12px;
+}
+
+.slot{
+  position:relative;
+  min-height:124px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+    linear-gradient(145deg, var(--slot-top), var(--slot));
+  border:1px solid var(--line);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.03),
+    inset 0 -10px 18px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(0,0,0,0.35);
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  cursor:pointer;
+}
+
+.slot:hover{
+  transform:translateY(-4px);
+  border-color:var(--line-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.05),
+    inset 0 -10px 18px rgba(0,0,0,0.22),
+    0 0 14px rgba(190,215,255,0.18);
+}
+
+.slot.active{
+  border-color:rgba(235,243,255,0.5);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 0 16px rgba(207,226,255,0.22);
+}
+
+.slot-topline{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.slot-icon{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex:1;
+  padding:8px 0;
+}
+
+.slot-icon i{
+  font-size:44px;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,0.08));
+}
+
+.slot-name{
+  text-align:center;
+  font-size:13px;
+  color:var(--text);
+  line-height:1.3;
+}
+
+.slot-rarity{
+  text-align:right;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.item-panel{
+  min-height:272px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
+    var(--panel-2);
+  border:1px solid var(--line);
+  padding:16px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+.item-panel h3{
+  font-size:16px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:10px;
+  color:var(--accent);
+}
+
+.item-type{
+  font-size:12px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:14px;
+}
+
+.item-desc{
+  font-size:14px;
+  line-height:1.7;
+  color:#dbe5f7;
+  min-height:90px;
+}
+
+.item-stats{
+  margin-top:16px;
+  display:grid;
+  gap:10px;
+}
+
+.mini-stat-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+
+.mini-bar{
+  width:100%;
+  height:8px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03);
+}
+
+.mini-fill{
+  height:100%;
+  background:linear-gradient(90deg, #9eb6e3, #eef4ff);
+}
+
+.quest-list{
+  list-style:none;
+  margin:14px 0 0;
+  display:grid;
+  gap:8px;
+  color:#e7eefc;
+}
+
+.quest-list li{
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.02);
+}
+
+.quest-button{
+  display:inline-block;
+  margin-top:16px;
+  text-decoration:none;
+  color:var(--text);
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,0.04);
+  padding:14px 18px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.quest-button:hover{
+  transform:translateY(-3px);
+  background:rgba(220,232,255,0.08);
+  box-shadow:0 0 14px rgba(220,232,255,0.15);
+}
+
+.terminal-line{
+  margin-top:16px;
+  color:var(--muted);
+  font-size:15px;
+}
+
+.footer{
+  margin-top:24px;
+  padding:16px 8px 4px;
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+  letter-spacing:.5px;
+}
+
+@media (max-width:980px){
+  .inventory-wrap{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:860px){
+  .profile-panel,
+  .traits-panel{
+    grid-column:span 12;
+  }
+
+  .inventory-grid,
+  .abilities-list{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+  }
+}
+
+@media (max-width:560px){
+  body{
+    padding:14px;
+  }
+
+  .inventory-grid,
+  .abilities-list{
+    grid-template-columns:1fr;
+  }
+
+  .info-row{
+    flex-direction:column;
+  }
+
+  .value{
+    text-align:left;
+  }
+
+  .audio-controls{
+    justify-content:flex-start;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <p>INITIALIZING DESIGNER PROFILE...</p>
+  <p>LOADING CHARACTER DATA...</p>
+  <p>ACCESSING INVENTORY...</p>
+  <p>SYSTEM READY</p>
+</div>
+
+<!-- Put your MP3 in the same folder as index.html and rename it to wireframe-dream.mp3 -->
+<audio id="bgMusic" loop>
+  <source src="wireframe-dream.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+  <header class="title-panel">
+    <h1>Designer Character Sheet</h1>
+    <p class="subtitle">Visual Content Designer / RPG Interface Application</p>
+  </header>
+
+  <div class="audio-controls">
+    <button id="musicToggle" class="audio-button" type="button">Mute Music</button>
+  </div>
+
+  <main class="grid">
+
+    <section class="panel profile-panel">
+      <h2>Profile</h2>
+
+      <div class="info-row">
+        <span class="label">Name</span>
+        <span class="value">Tuana Serdar</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Class</span>
+        <span class="value">Visual Content Designer</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Status</span>
+        <span class="value">Visual Communication Design Student</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Target</span>
+        <span class="value">Design Bridge</span>
+      </div>
+
+      <div class="xp-block">
+        <div class="xp-label">
+          <span>Level 01 — Junior Designer</span>
+          <span>60 / 100 XP</span>
+        </div>
+        <div class="bar">
+          <div class="fill" style="width:60%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel traits-panel">
+      <h2>Core Traits</h2>
+
+      <div class="trait">
+        <div class="trait-top">
+          <span>Determined</span>
+          <span>95</span>
+        </div>
+        <div class="bar"><div class="fill" style="width:95%"></div></div>
+      </div>
+
+      <div class="trait">
+        <div class="trait-top">
+          <span>Reflective</span>
+          <span>90</span>
+        </div>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+      </div>
+
+      <div class="trait">
+        <div class="trait-top">
+          <span>Rational</span>
+          <span>92</span>
+        </div>
+        <div class="bar"><div class="fill" style="width:92%"></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Design Philosophy</h2>
+      <p>
+        Design is not only about aesthetics. For me, design is also a system — and a system of systems.
+      </p>
+      <br>
+      <p>
+        As a Visual Communication Design student, I approach design not merely as aesthetic production but as a structured communication system.
+        I see myself as a designer who thinks systematically, pays close attention to detail, and aims to build meaningful visual frameworks.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>Class Abilities</h2>
+      <ul class="abilities-list">
+        <li>Brand Identity Design</li>
+        <li>Poster Design</li>
+        <li>Publication Design</li>
+        <li>Social Media Visuals</li>
+        <li>Presentation Design</li>
+        <li>Visual Composition</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Inventory</h2>
+
+      <div class="inventory-wrap">
+        <div class="inventory-grid">
+
+          <div class="slot active"
+            data-name="Adobe Illustrator"
+            data-type="Vector Tool / Identity Systems"
+            data-desc="Primary tool for vector-based composition, logo construction, layout refinement, and structured brand identity work."
+            data-power="95"
+            data-precision="94">
+            <div class="slot-topline"><span>Slot 01</span><span>EQP</span></div>
+            <div class="slot-icon"><i class="devicon-illustrator-plain colored"></i></div>
+            <div class="slot-name">Adobe Illustrator</div>
+            <div class="slot-rarity">Core Tool</div>
+          </div>
+
+          <div class="slot"
+            data-name="Adobe Photoshop"
+            data-type="Image Tool / Editing"
+            data-desc="Used for image editing, visual manipulation, compositing, and preparing polished assets for digital and print communication."
+            data-power="88"
+            data-precision="84">
+            <div class="slot-topline"><span>Slot 02</span><span>EQP</span></div>
+            <div class="slot-icon"><i class="devicon-photoshop-plain colored"></i></div>
+            <div class="slot-name">Adobe Photoshop</div>
+            <div class="slot-rarity">Support Tool</div>
+          </div>
+
+          <div class="slot"
+            data-name="Adobe After Effects"
+            data-type="Motion Tool / Animation"
+            data-desc="Used for motion graphics, animated transitions, and time-based visual storytelling in a controlled interface system."
+            data-power="82"
+            data-precision="78">
+            <div class="slot-topline"><span>Slot 03</span><span>EQP</span></div>
+            <div class="slot-icon"><i class="devicon-aftereffects-plain colored"></i></div>
+            <div class="slot-name">Adobe After Effects</div>
+            <div class="slot-rarity">Advanced Tool</div>
+          </div>
+
+          <div class="slot"
+            data-name="Figma"
+            data-type="Interface Tool / Layout"
+            data-desc="Used for interface planning, layout systems, structured design decisions, and organized digital workflow development."
+            data-power="84"
+            data-precision="86">
+            <div class="slot-topline"><span>Slot 04</span><span>EQP</span></div>
+            <div class="slot-icon"><i class="devicon-figma-plain colored"></i></div>
+            <div class="slot-name">Figma</div>
+            <div class="slot-rarity">Utility Tool</div>
+          </div>
+
+        </div>
+
+        <div class="item-panel">
+          <h3 id="itemName">Adobe Illustrator</h3>
+          <div class="item-type" id="itemType">Vector Tool / Identity Systems</div>
+          <div class="item-desc" id="itemDesc">
+            Primary tool for vector-based composition, logo construction, layout refinement, and structured brand identity work.
+          </div>
+
+          <div class="item-stats">
+            <div>
+              <div class="mini-stat-label"><span>Power</span><span id="powerValue">95</span></div>
+              <div class="mini-bar"><div class="mini-fill" id="powerBar" style="width:95%"></div></div>
+            </div>
+
+            <div>
+              <div class="mini-stat-label"><span>Precision</span><span id="precisionValue">94</span></div>
+              <div class="mini-bar"><div class="mini-fill" id="precisionBar" style="width:94%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Guild Interest: Why Design Bridge</h2>
+      <p>
+        Design Bridge’s approach to brand identity strongly resonates with my design perspective. Rather than treating identity as a simple visual output, it approaches it as a structured and systematic design framework.
+      </p>
+      <br>
+      <p>
+        This aligns with my understanding of design as both aesthetic and strategic communication. In this role, I hope to contribute to the development of coherent and sustainable visual systems.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>Quest Log</h2>
+
+      <ul class="quest-list">
+        <li>[✓] Poster Design</li>
+        <li>[✓] Identity Systems</li>
+        <li>[✓] Motion Experiments</li>
+      </ul>
+
+      <a
+        class="quest-button"
+        href="https://www.behance.net/tuanaserdar"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Access Portfolio
+      </a>
+
+      <p class="terminal-line">
+        &gt; Current Quest: Join the studio and contribute to visual systems with consistency and purpose.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    VCDS 3503 Design and Creativity • Project 1 • Tuana Serdar
+  </footer>
+</div>
+
+<script>
+const slots = document.querySelectorAll('.slot');
+const itemName = document.getElementById('itemName');
+const itemType = document.getElementById('itemType');
+const itemDesc = document.getElementById('itemDesc');
+const powerValue = document.getElementById('powerValue');
+const precisionValue = document.getElementById('precisionValue');
+const powerBar = document.getElementById('powerBar');
+const precisionBar = document.getElementById('precisionBar');
+
+slots.forEach(slot => {
+  slot.addEventListener('mouseenter', () => {
+    slots.forEach(s => s.classList.remove('active'));
+    slot.classList.add('active');
+
+    itemName.textContent = slot.dataset.name;
+    itemType.textContent = slot.dataset.type;
+    itemDesc.textContent = slot.dataset.desc;
+    powerValue.textContent = slot.dataset.power;
+    precisionValue.textContent = slot.dataset.precision;
+    powerBar.style.width = slot.dataset.power + '%';
+    precisionBar.style.width = slot.dataset.precision + '%';
+  });
+});
+
+const music = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('musicToggle');
+
+music.volume = 0.45;
+
+function updateMusicButton(){
+  musicToggle.textContent = music.paused ? 'Play Music' : 'Mute Music';
+}
+
+window.addEventListener('load', () => {
+  const tryPlay = music.play();
+
+  if (tryPlay !== undefined) {
+    tryPlay
+      .then(() => {
+        updateMusicButton();
+      })
+      .catch(() => {
+        musicToggle.textContent = 'Play Music';
+      });
+  }
+});
+
+musicToggle.addEventListener('click', () => {
+  if (music.paused) {
+    music.play()
+      .then(() => {
+        updateMusicButton();
+      })
+      .catch(() => {
+        musicToggle.textContent = 'Play Music';
+      });
+  } else {
+    music.pause();
+    updateMusicButton();
+  }
+});
+</script>
+
+</body>
+</html>
